@@ -1,0 +1,76 @@
+discovery.docker "all" {
+  host = "unix:///var/run/docker.sock"
+
+  //  values = ["com.docker.compose.project=project-name"] Was "project-name" — your docker compose project name 
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=infra"]
+  }
+}
+
+discovery.relabel "docker_labels" {
+  targets = discovery.docker.all.targets  // matches the block name "all"
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "stream"
+  }
+}
+
+// Must use discovery.relabel output, not raw discovery targets
+loki.source.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.docker_labels.output
+  forward_to       = [loki.process.enrich.receiver]
+  refresh_interval = "30s"
+}
+
+loki.process "enrich" {
+  stage.docker {}
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url        = "http://loki:3100/loki/api/v1/push"
+    batch_wait = "1s"
+    batch_size = "1MiB"
+  }
+
+  external_labels = {
+    env      = "dev",
+    platform = "docker-compose",
+  }
+}
+
+prometheus.scrape "spring_boot" {
+  targets = [
+    {"__address__" = "employee-service:8080",     "service" = "employee-service"},
+    {"__address__" = "leave-service:8080",  "service" = "leave-service"},
+  ]
+  metrics_path    = "/actuator/prometheus"
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.local.receiver]
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
