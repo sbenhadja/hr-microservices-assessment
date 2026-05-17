@@ -1,0 +1,264 @@
+{
+  "info": {
+    "_postman_id": "a58e0537-9400-4674-9c8f-464a08551a98",
+    "name": "hr-microservice-assessement",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31990065"
+  },
+  "item": [
+    {
+      "name": "CREATE_EMPLOYEE",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@example.czt\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/v1/employees",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "v1",
+            "employees"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CREATE_LEAVE",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"employeeId\": \"633513ee-65bc-4e08-96c4-88c5b4a74c21\",\r\n  \"startDate\": \"2026-05-20\",\r\n  \"endDate\": \"2026-05-25\",\r\n  \"reason\": \"Family vacation\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/v1/leaves",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "v1",
+            "leaves"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "UPDATE_EMLOYEE",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@example.cssm\",\r\n  \"department\": \"DSIT\",\r\n  \"status\":\"LEAVE_SEEK\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/v1/employees/263969b3-cd08-4c6c-a986-9cf9b0a0ee8f",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "v1",
+            "employees",
+            "263969b3-cd08-4c6c-a986-9cf9b0a0ee8f"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "FIND_LEAVES_BY_EMPLYEE_ID",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8082/api/v1/leaves?employeeId=633513ee-65bc-4e08-96c4-88c5b4a74c21",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "v1",
+            "leaves"
+          ],
+          "query": [
+            {
+              "key": "employeeId",
+              "value": "633513ee-65bc-4e08-96c4-88c5b4a74c21"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "UPDATE_LEAVE_STATUS",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/v1/leaves/0ddb6b5e-6ca9-4547-8896-beaaf78fea1a?status=APPROVED",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "v1",
+            "leaves",
+            "0ddb6b5e-6ca9-4547-8896-beaaf78fea1a"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "APPROVED"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "FIND_EMPLOYEE_BY_ID",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/v1/employees/263969b3-cd08-4c6c-a986-9cf9b0a0ee8f",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "v1",
+            "employees",
+            "263969b3-cd08-4c6c-a986-9cf9b0a0ee8f"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET_ALL_EMPLOYEE",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/v1/employees",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "v1",
+            "employees"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DEACTIVATE_EMPLOYEE",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/v1/employees/263969b3-cd08-4c6c-a986-9cf9b0a0ee8f/deactivate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "v1",
+            "employees",
+            "263969b3-cd08-4c6c-a986-9cf9b0a0ee8f",
+            "deactivate"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
