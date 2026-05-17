@@ -45,6 +45,13 @@ services:
       - prometheus
       - loki
       - tempo
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability:/etc/grafana/provisioning
+    restart: unless-stopped
 
   alloy:
     image: grafana/alloy:latest
@@ -97,5 +104,90 @@ services:
 
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  # =========================
+  # POSTGRES DATABASE
+  # =========================
+
+  # leave-db:
+  #   image: postgres:16
+  #   container_name: leave-db
+  #   environment:
+  #     POSTGRES_DB: leavedb
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: admin
+  #   ports:
+  #     - "5432:5432"
+
+  # employee-db:
+  #   image: postgres:16
+  #   container_name: employee-db
+  #   environment:
+  #     POSTGRES_DB: employeedb
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: admin
+  #   ports:
+  #     - "5433:5432"
+
+  hr-db:
+    image: postgres:16
+    container_name: hr-db
+    environment:
+      POSTGRES_DB: hrdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+  # =========================
+  # BUSINESS SERVICES
+  # =========================
+
+  employee-service:
+    build:
+      context: ../services/employee-service
+    container_name: employee-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://hr-db:5432/hrdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+      OTEL_SERVICE_NAME: employee-service
+    depends_on:
+      - kafka
+      - hr-db
+      - tempo
+
+  leave-service:
+    build:
+      context: ../services/leave-service
+    container_name: leave-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://hr-db:5432/hrdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+      OTEL_SERVICE_NAME: leave-service
+    depends_on:
+      - kafka
+      - hr-db
+      - tempo
+      
 volumes:
   prometheus_data:
+  grafana-data:
