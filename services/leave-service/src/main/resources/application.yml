@@ -1,0 +1,81 @@
+server:
+  port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: leave
+
+  datasource:
+    url: jdbc:postgresql://hr-db:5432/hrdb
+    username: postgres
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        default_schema: hr_leave
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true   
+    locations: classpath:db/migration
+    schemas: hr_leave
+    
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: leave-service
+      auto-offset-reset: earliest
+
+    producer:
+      acks: all
+#    consumer:
+#      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer  # Wraps the real deserializer to handle errors gracefully instead of crashing
+#      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer  # Same wrapper for the message value
+#      properties:
+#        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer  # Actual key deserializer: message keys are plain strings
+#        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer  # Actual value deserializer: message values are JSON
+#        spring.json.use.type.headers: false  # Ignore the __TypeId__ header set by the producer (avoids ClassNotFoundException when producer/consumer are different services)
+#        spring.json.value.default.type: com.hr.leave.infrastructure.kafka.event.EmployeeEvent  # Since type headers are ignored, deserialize all messages into this local class
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+otel:
+  service:
+    name: leave-service
+
+  exporter:
+    otlp:
+      endpoint: http://tempo:4317
+
+  traces:
+    exporter: otlp
+
+  metrics:
+    exporter: none   # avoid duplicate metrics
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    io.micrometer: INFO
+    io.opentelemetry: INFO
+    org.springframework.web: DEBUG
+
+mvc:
+  log-resolved-exception: true
