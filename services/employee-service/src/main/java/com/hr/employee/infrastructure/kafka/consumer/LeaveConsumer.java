@@ -10,7 +10,7 @@ public class LeaveConsumer {
 
   @KafkaListener(topics = "leave-events", groupId = "employee-group")
   public void consume(String message) {
-    log.info("Received leave event", message);
+    log.info("Received leave event: {}", message);
     System.out.println("Received leave event: " + message);
   }
 }

@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleIllegal(EntityNotFoundException ex) {
     log.warn("EntityNotFoundException: {}", ex.getMessage());
-    return ResponseEntity.badRequest()
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(
             new ErrorResponse(
                 LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage()));
