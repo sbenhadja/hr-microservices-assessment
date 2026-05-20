@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegal(IllegalArgumentException ex) {
-    log.warn("IllegalArgumentException: {}", ex.getMessage());
+    log.warn("IllegalArgumentException: {}", ex);
     return ResponseEntity.badRequest()
         .body(
             new ErrorResponse(
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleIllegal(EntityNotFoundException ex) {
-    log.warn("EntityNotFoundException: {}", ex.getMessage());
+    log.warn("EntityNotFoundException: {}", ex);
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(
             new ErrorResponse(
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleMalformedJson(HttpMessageNotReadableException ex) {
-    log.warn("HttpMessageNotReadableException: {}", ex.getMessage());
+    log.warn("HttpMessageNotReadableException: {}", ex);
     return ResponseEntity.badRequest()
         .body(
             new ErrorResponse(
@@ -99,14 +99,27 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<String> handleIllegal(RuntimeException ex) {
-    log.warn("RuntimeException: {}", ex.getMessage());
-    return ResponseEntity.badRequest().body("Not Found" + ex.getMessage());
+  public ResponseEntity<ErrorResponse> handleIllegal(RuntimeException ex) {
+    log.warn("RuntimeException: {}", ex);
+    return ResponseEntity.badRequest()
+        .body(
+            new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Runtime Exception",
+                ex.getMessage()));
   }
 
   @ExceptionHandler(MissingRequestHeaderException.class)
-  public ResponseEntity<String> handleMissingHeader(MissingRequestHeaderException ex) {
-    return ResponseEntity.badRequest().body("Missing Required Header: " + ex.getHeaderName());
+  public ResponseEntity<ErrorResponse> handleMissingHeader(MissingRequestHeaderException ex) {
+    log.warn("MissingRequestHeaderException: {}", ex);
+    return ResponseEntity.badRequest()
+        .body(
+            new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Missing Required Header",
+                ex.getMessage()));
   }
 
   @ExceptionHandler(Exception.class)
