@@ -7,7 +7,7 @@ package com.hr.leave.unite;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.hr.leave.application.service.usecase.LeaveUserCase;
+import com.hr.leave.application.service.usecase.LeaveUseCase;
 import com.hr.leave.domain.enums.Status;
 import com.hr.leave.domain.model.Leave;
 import com.hr.leave.domain.repository.LeaveRepository;
@@ -39,7 +39,7 @@ class LeaveUserCaseTest {
 
   @Mock private EmployeeProjectionRepository employeeProjectionRepository;
 
-  @InjectMocks private LeaveUserCase service;
+  @InjectMocks private LeaveUseCase service;
 
   private UUID employeeId;
   private UUID leaveId;
