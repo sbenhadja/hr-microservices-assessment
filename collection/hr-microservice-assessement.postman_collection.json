@@ -16,7 +16,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@example.czt\",\r\n  \"department\": \"IT\"\r\n}",
+          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@examplee.dom\",\r\n  \"departmentId\":\"633513ee-65bc-4e08-96c4-88c5b4a74c21\",\r\n  \"status\":\"ACTIVE\",\r\n  \"recrutementDate\":\"2026-05-20\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -82,7 +82,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@example.cssm\",\r\n  \"department\": \"DSIT\",\r\n  \"status\":\"LEAVE_SEEK\"\r\n}",
+          "raw": "{\r\n  \"firstName\": \"Ahmed\",\r\n  \"lastName\": \"Adido\",\r\n  \"email\": \"ahmed.adido@example.dz\",\r\n  \"departmentId\": \"633513ee-65bc-4e08-96c4-88c5b4a74c21\",\r\n  \"status\":\"LEAVE_SEEK\",\r\n  \"recrutementDate\":\"2026-05-20\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -90,7 +90,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8081/api/v1/employees/263969b3-cd08-4c6c-a986-9cf9b0a0ee8f",
+          "raw": "http://localhost:8081/api/v1/employees/26a3559a-6a39-4bb6-bbce-e02e78b562b9",
           "protocol": "http",
           "host": [
             "localhost"
@@ -100,7 +100,7 @@
             "api",
             "v1",
             "employees",
-            "263969b3-cd08-4c6c-a986-9cf9b0a0ee8f"
+            "26a3559a-6a39-4bb6-bbce-e02e78b562b9"
           ]
         }
       },
@@ -185,7 +185,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8081/api/v1/employees/263969b3-cd08-4c6c-a986-9cf9b0a0ee8f",
+          "raw": "http://localhost:8081/api/v1/employees/26a3559a-6a39-4bb6-bbce-e02e78b562b9",
           "protocol": "http",
           "host": [
             "localhost"
@@ -195,7 +195,7 @@
             "api",
             "v1",
             "employees",
-            "263969b3-cd08-4c6c-a986-9cf9b0a0ee8f"
+            "26a3559a-6a39-4bb6-bbce-e02e78b562b9"
           ]
         }
       },
