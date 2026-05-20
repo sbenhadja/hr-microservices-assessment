@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LeaveUserCase implements LeaveService {
+public class LeaveUseCase implements LeaveService {
 
   private final LeaveRepository repository;
   private final EmployeeProjectionRepository employeeProjectionRepository;
