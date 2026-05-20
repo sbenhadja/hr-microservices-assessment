@@ -1,8 +1,9 @@
 package com.hr.employee.presentation.controller;
 
 import com.hr.employee.application.service.EmployeeService;
-import com.hr.employee.presentation.dto.EmployeeRequest;
+import com.hr.employee.presentation.dto.EmployeeCreateRequest;
 import com.hr.employee.presentation.dto.EmployeeResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,8 @@ public class EmployeeController {
   @Autowired private EmployeeService employeeService;
 
   @PostMapping
-  public ResponseEntity<EmployeeResponse> createEmployee(@RequestBody EmployeeRequest request) {
+  public ResponseEntity<EmployeeResponse> createEmployee(
+      @Valid @RequestBody EmployeeCreateRequest request) {
     EmployeeResponse response = employeeService.createEmployee(request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
@@ -43,14 +45,14 @@ public class EmployeeController {
 
   @PutMapping("/{id}")
   public ResponseEntity<EmployeeResponse> updateEmployee(
-      @PathVariable UUID id, @RequestBody EmployeeRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody EmployeeCreateRequest request) {
     EmployeeResponse response = employeeService.updateEmployee(id, request);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   @PatchMapping("/{id}/deactivate")
-  public ResponseEntity<Void> deactivateEmployee(@PathVariable UUID id) {
-    employeeService.deactivateEmployee(id);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  public ResponseEntity<EmployeeResponse> deactivateEmployee(@PathVariable UUID id) {
+    EmployeeResponse response = employeeService.deactivateEmployee(id);
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }

@@ -4,8 +4,12 @@ import com.hr.employee.domain.enums.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -16,18 +20,53 @@ public class Employee {
   private String firstName;
   private String lastName;
   private String email;
-  private String departement;
+
+  @ManyToOne(
+      fetch = FetchType.LAZY,
+      cascade = {})
+  @JoinColumn(name = "department_id")
+  private Department department;
+
+  private LocalDate recrutementDate;
 
   @Enumerated(EnumType.STRING)
   private Status status = Status.ACTIVE;
 
   public Employee() {}
 
-  public Employee(String firstName, String lastName, String email, String departement) {
+  //  public Employee(String firstName, String lastName, String email, Department departement) {
+  //    this.firstName = firstName;
+  //    this.lastName = lastName;
+  //    this.email = email;
+  //    this.department = departement;
+  //  }
+
+  public Employee(
+      String firstName,
+      String lastName,
+      String email,
+      Department departement,
+      String status,
+      LocalDate recrutementDate) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
-    this.departement = departement;
+    this.department = departement;
+    this.status = Status.valueOf(status);
+    this.recrutementDate = recrutementDate;
+  }
+
+  public Employee(
+      String firstName,
+      String lastName,
+      String email,
+      Department departement,
+      LocalDate recrutementDate) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.department = departement;
+    this.recrutementDate = recrutementDate;
   }
 
   public UUID getId() {
@@ -62,12 +101,12 @@ public class Employee {
     this.email = email;
   }
 
-  public String getDepartement() {
-    return departement;
+  public Department getDepartment() {
+    return department;
   }
 
-  public void setDepartement(String departement) {
-    this.departement = departement;
+  public void setDepartment(Department department) {
+    this.department = department;
   }
 
   public Status getStatus() {
@@ -76,6 +115,14 @@ public class Employee {
 
   public void setStatus(Status status) {
     this.status = status;
+  }
+
+  public LocalDate getRecrutementDate() {
+    return recrutementDate;
+  }
+
+  public void setRecrutementDate(LocalDate recrutementDate) {
+    this.recrutementDate = recrutementDate;
   }
 
   @Override
@@ -109,11 +156,14 @@ public class Employee {
         + ", email='"
         + email
         + '\''
-        + ", departement='"
-        + departement
+        + ", departmentId="
+        + department
         + '\''
         + ", status="
         + status
+        + '\''
+        + ", dateRecrutement="
+        + recrutementDate
         + '}';
   }
 }

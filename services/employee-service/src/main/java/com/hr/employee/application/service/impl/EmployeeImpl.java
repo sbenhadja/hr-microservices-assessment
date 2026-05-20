@@ -1,123 +1,112 @@
 package com.hr.employee.application.service.impl;
 
+import com.hr.employee.application.mapper.EmployeeMapper;
 import com.hr.employee.application.service.EmployeeService;
 import com.hr.employee.domain.enums.Status;
+import com.hr.employee.domain.model.Department;
 import com.hr.employee.domain.model.Employee;
+import com.hr.employee.domain.repository.DepartmentRepository;
 import com.hr.employee.domain.repository.EmployeeRepository;
 import com.hr.employee.infrastructure.kafka.producer.EmployeeProducer;
-import com.hr.employee.presentation.dto.EmployeeRequest;
+import com.hr.employee.presentation.dto.EmployeeCreateRequest;
 import com.hr.employee.presentation.dto.EmployeeResponse;
 import com.hr.employee.presentation.exception.AlreadyExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmployeeImpl implements EmployeeService {
 
-  private final EmployeeRepository repository;
+  private final EmployeeRepository empRepository;
+  private final DepartmentRepository depRepository;
   private final EmployeeProducer producer;
 
-  public EmployeeImpl(EmployeeRepository repository, EmployeeProducer producer) {
-    this.repository = repository;
+  public EmployeeImpl(
+      EmployeeRepository empRepository,
+      EmployeeProducer producer,
+      DepartmentRepository depRepository) {
+    this.empRepository = empRepository;
     this.producer = producer;
+    this.depRepository = depRepository;
   }
 
   @Override
-  public EmployeeResponse createEmployee(EmployeeRequest request) {
-    if (repository.existsByEmail(request.email())) {
+  public EmployeeResponse createEmployee(EmployeeCreateRequest request) {
+    if (empRepository.existsByEmail(request.email())) {
       throw new AlreadyExistsException("Email already exists");
     }
-    Employee employee =
-        new Employee(
-            request.firstName(), request.lastName(), request.email(), request.department());
+    Department department =
+        depRepository
+            .findById(request.departmentId())
+            .orElseThrow(() -> new RuntimeException("Department not found"));
 
-    Employee saved = repository.save(employee);
-
+    log.info("Department from DB: id={}, name={}", department.getId(), department.getName());
+    System.out.println("Before EmployeeMapper.toEntity");
+    Employee employee = EmployeeMapper.toEntity(request, department);
+    System.out.println("EmployeeMapper.toEntity done");
+    Employee saved = empRepository.save(employee);
+    System.out.println("Employee save done");
     producer.publishCreated(saved);
+    System.out.println("Producer done");
 
-    return new EmployeeResponse(
-        saved.getId().toString(),
-        saved.getFirstName(),
-        saved.getLastName(),
-        saved.getEmail(),
-        saved.getDepartement(),
-        saved.getStatus().name());
+    return EmployeeMapper.toresponse(saved);
   }
 
   @Override
-  public EmployeeResponse updateEmployee(UUID id, EmployeeRequest request) {
+  public EmployeeResponse updateEmployee(UUID id, EmployeeCreateRequest request) {
     Employee employee =
-        repository
+        empRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
-    employee.setFirstName(request.firstName());
-    employee.setLastName(request.lastName());
-    employee.setEmail(request.email());
-    employee.setDepartement(request.department());
-    employee.setStatus(Status.valueOf(request.status()));
+    Department department =
+        depRepository
+            .findById(request.departmentId())
+            .orElseThrow(() -> new RuntimeException("Department not found"));
 
-    Employee updated = repository.save(employee);
+    EmployeeMapper.toUpdate(employee, department, request);
+    Employee updated = empRepository.save(employee);
 
     producer.publishUpdated(updated);
 
-    return new EmployeeResponse(
-        updated.getId().toString(),
-        updated.getFirstName(),
-        updated.getLastName(),
-        updated.getEmail(),
-        updated.getDepartement(),
-        updated.getStatus().name());
+    return EmployeeMapper.toresponse(updated);
   }
 
   @Override
   public EmployeeResponse getEmployeeById(UUID id) {
-    Employee employee_ =
-        repository
+    Employee employee =
+        empRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
-    Employee employee = employee_;
-
-    return new EmployeeResponse(
-        employee.getId().toString(),
-        employee.getFirstName(),
-        employee.getLastName(),
-        employee.getEmail(),
-        employee.getDepartement(),
-        employee.getStatus().name());
+    return EmployeeMapper.toresponse(employee);
   }
 
   @Override
   public List<EmployeeResponse> getAllEmployees() {
-    List<Employee> listEmployee = repository.findAll();
+    List<Employee> listEmployee = empRepository.findAll();
     if (listEmployee.isEmpty()) {
       throw new EntityNotFoundException("No Employee found");
     }
-    return listEmployee.stream()
-        .map(
-            employee ->
-                new EmployeeResponse(
-                    employee.getId().toString(),
-                    employee.getFirstName(),
-                    employee.getLastName(),
-                    employee.getEmail(),
-                    employee.getDepartement(),
-                    employee.getStatus().name()))
-        .toList();
+
+    return listEmployee.stream().map(employee -> EmployeeMapper.toresponse(employee)).toList();
   }
 
   @Override
-  public void deactivateEmployee(UUID id) {
+  public EmployeeResponse deactivateEmployee(UUID id) {
     Employee employee =
-        repository
+        empRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
     employee.setStatus(Status.INACTIVE);
     producer.publishDesactivated(employee);
-    repository.save(employee);
+    empRepository.save(employee);
+
+    return EmployeeMapper.toresponse(employee);
   }
 }
