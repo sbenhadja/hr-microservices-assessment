@@ -6,6 +6,9 @@ import static org.awaitility.Awaitility.await;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +20,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -74,14 +78,48 @@ public abstract class AbstractE2ETest {
   protected String baseUrl;
 
   @BeforeEach
-  void setup() {
-
-    baseUrl = "http://" + EMPLOYEE_SERVICE.getHost() + ":" + EMPLOYEE_SERVICE.getMappedPort(8081);
-
-    RestAssured.baseURI = baseUrl;
+  void setup() throws Exception {
+    RestAssured.baseURI =
+        "http://" + EMPLOYEE_SERVICE.getHost() + ":" + EMPLOYEE_SERVICE.getMappedPort(8081);
 
     kafkaConsumer = createConsumer();
     kafkaConsumer.subscribe(List.of("employee.events"));
+
+    try (Connection conn =
+            DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+        Statement stmt = conn.createStatement()) {
+
+      stmt.execute("SET search_path TO hr_employee");
+      stmt.execute("DELETE FROM employee");
+    }
+  }
+
+  @BeforeAll
+  static void seedDepartments() throws Exception {
+    try (Connection conn =
+            DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+        Statement stmt = conn.createStatement()) {
+
+      // Point to the correct schema where Flyway created the tables
+      stmt.execute("SET search_path TO hr_employee");
+
+      stmt.execute("DELETE FROM employee");
+      stmt.execute("DELETE FROM department");
+
+      stmt.execute(
+          """
+            INSERT INTO department (id, name) VALUES
+              ('633513ee-65bc-4e08-96c4-88c5b4a74c21', 'IT'),
+              ('11111111-1111-1111-1111-111111111111', 'HR'),
+              ('22222222-2222-2222-2222-222222222222', 'Finance'),
+              ('33333333-3333-3333-3333-333333333333', 'Marketing'),
+              ('44444444-4444-4444-4444-444444444444', 'Sales'),
+              ('55555555-5555-5555-5555-555555555555', 'Legal')
+            ON CONFLICT (id) DO NOTHING
+        """);
+    }
   }
 
   @AfterEach

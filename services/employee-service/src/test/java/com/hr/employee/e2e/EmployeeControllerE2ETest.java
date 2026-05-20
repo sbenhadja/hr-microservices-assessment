@@ -14,6 +14,24 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Employee Controller — E2E Tests (Real Containers)")
 class EmployeeControllerE2ETest extends AbstractE2ETest {
 
+  private static final UUID IT_DEPARTMENT_ID =
+      UUID.fromString("633513ee-65bc-4e08-96c4-88c5b4a74c21");
+
+  private static final UUID HR_DEPARTMENT_ID =
+      UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+  private static final UUID FINANCE_DEPARTMENT_ID =
+      UUID.fromString("22222222-2222-2222-2222-222222222222");
+
+  private static final UUID MARKETING_DEPARTMENT_ID =
+      UUID.fromString("33333333-3333-3333-3333-333333333333");
+
+  private static final UUID SALES_DEPARTMENT_ID =
+      UUID.fromString("44444444-4444-4444-4444-444444444444");
+
+  private static final UUID LEGAL_DEPARTMENT_ID =
+      UUID.fromString("55555555-5555-5555-5555-555555555555");
+
   // POST /api/v1/employees
   @Test
   @DisplayName("POST /employees → 201 Created + persisted + Kafka event fired")
@@ -25,9 +43,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
               "firstName":  "Alice",
               "lastName":   "Martin",
               "email":      "alice.martin@company.com",
-              "department": "Engineering"
+              "departmentId": "%s",
+              "recrutementDate": "2024-01-15"
             }
-            """;
+            """
+            .formatted(IT_DEPARTMENT_ID);
 
     // 1. Call real REST endpoint
     String responseBody =
@@ -42,7 +62,9 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
             .body("firstName", equalTo("Alice"))
             .body("lastName", equalTo("Martin"))
             .body("email", equalTo("alice.martin@company.com"))
-            .body("department", equalTo("Engineering"))
+            .body("department.id", equalTo(IT_DEPARTMENT_ID.toString()))
+            .body("department.name", equalTo("IT"))
+            .body("recrutementDate", equalTo("2024-01-15"))
             .body("status", equalTo("ACTIVE"))
             .extract()
             .asString();
@@ -79,9 +101,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
               "firstName":  "Bob",
               "lastName":   "Dupont",
               "email":      "bob.dupont@company.com",
-              "department": "HR"
+              "departmentId": "%s",
+              "recrutementDate": "2024-01-15"
             }
-            """;
+            """
+            .formatted(HR_DEPARTMENT_ID);
 
     // First creation — must succeed
     given()
@@ -117,9 +141,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                   "firstName":  "Carol",
                   "lastName":   "Smith",
                   "email":      "carol.smith@company.com",
-                  "department": "Finance"
+                  "departmentId": "%s",
+                   "recrutementDate": "2024-01-15"
                 }
-                """)
+                """
+                .formatted(FINANCE_DEPARTMENT_ID))
         .when()
         .post("/api/v1/employees")
         .then()
@@ -150,9 +176,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                       "firstName":  "David",
                       "lastName":   "Lee",
                       "email":      "david.lee@company.com",
-                      "department": "IT"
+                      "departmentId": "%s",
+                      "recrutementDate": "2024-01-15"
                     }
-                    """)
+                 """
+                    .formatted(IT_DEPARTMENT_ID))
             .when()
             .post("/api/v1/employees")
             .then()
@@ -173,7 +201,9 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
         .body("firstName", equalTo("David"))
         .body("lastName", equalTo("Lee"))
         .body("email", equalTo("david.lee@company.com"))
-        .body("department", equalTo("IT"))
+        .body("department.id", equalTo(IT_DEPARTMENT_ID.toString()))
+        .body("department.name", equalTo("IT"))
+        .body("recrutementDate", equalTo("2024-01-15"))
         .body("status", equalTo("ACTIVE"));
   }
 
@@ -205,9 +235,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                       "firstName":  "Eve",
                       "lastName":   "Brown",
                       "email":      "eve.brown@company.com",
-                      "department": "Marketing"
+                      "departmentId": "%s",
+                       "recrutementDate": "2024-01-15"
                     }
-                    """)
+                    """
+                    .formatted(MARKETING_DEPARTMENT_ID))
             .when()
             .post("/api/v1/employees")
             .then()
@@ -227,16 +259,20 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                   "firstName":  "Eve",
                   "lastName":   "Brown-Updated",
                   "email":      "eve.brown@company.com",
-                  "department": "Sales",
-                  "status":     "ACTIVE"
+                  "departmentId": "%s",
+                  "recrutementDate": "2024-01-15",
+                  "status": "ACTIVE"
                 }
-                """)
+                """
+                .formatted(SALES_DEPARTMENT_ID))
         .when()
         .put("/api/v1/employees/{id}")
         .then()
         .statusCode(200)
         .body("lastName", equalTo("Brown-Updated"))
-        .body("department", equalTo("Sales"));
+        .body("department.id", equalTo(SALES_DEPARTMENT_ID.toString()))
+        .body("department.name", equalTo("Sales"))
+        .body("recrutementDate", equalTo("2024-01-15"));
 
     // 3. Assert update Kafka event
     ConsumerRecord<String, String> record =
@@ -272,10 +308,12 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                   "firstName":  "Ghost",
                   "lastName":   "User",
                   "email":      "ghost@company.com",
-                  "department": "None",
-                  "status":     "ACTIVE"
+                  "departmentId": "%s",
+                  "recrutementDate": "2024-01-15",
+                  "status": "ACTIVE"
                 }
-                """)
+                """
+                .formatted(IT_DEPARTMENT_ID))
         .when()
         .put("/api/v1/employees/{id}")
         .then()
@@ -297,9 +335,11 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
                       "firstName":  "Frank",
                       "lastName":   "White",
                       "email":      "frank.white@company.com",
-                      "department": "Legal"
+                      "departmentId": "%s",
+                       "recrutementDate": "2024-01-15"
                     }
-                    """)
+                """
+                    .formatted(LEGAL_DEPARTMENT_ID))
             .when()
             .post("/api/v1/employees")
             .then()
@@ -315,7 +355,7 @@ class EmployeeControllerE2ETest extends AbstractE2ETest {
         .when()
         .patch("/api/v1/employees/{id}/deactivate")
         .then()
-        .statusCode(204);
+        .statusCode(200);
 
     // 3. Verify status via GET
     given()
