@@ -120,3 +120,25 @@ Import it into Postman and test endpoints for:
 - Employee Service APIs
 - Leave Service APIs
 - Event-driven communication via Kafka
+
+### E2E Tests — employee-service
+
+```
+# Go to
+    cd services/employee-service
+# Build the application
+    mvn clean package -DskipTests
+# Build the Docker image required for E2E tests
+    docker build -t employee-service:test .
+# Run E2E tests
+    mvn test -Pe2e
+```
+### Unit & Integration Tests — leave-service
+```
+# Go to
+    cd services/leave-service
+# Run Unit Tests
+    mvn clean test -Dtest=LeaveUseCaseTest -e
+# Run Integration Tests
+    mvn test -Dtest=LeaveRepositoryTest
+```
