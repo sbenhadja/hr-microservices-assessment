@@ -42,7 +42,7 @@ public class EmployeeImpl implements EmployeeService {
     Department department =
         depRepository
             .findById(request.departmentId())
-            .orElseThrow(() -> new RuntimeException("Department not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Department not found"));
 
     log.info("Department from DB: id={}, name={}", department.getId(), department.getName());
     System.out.println("Before EmployeeMapper.toEntity");
